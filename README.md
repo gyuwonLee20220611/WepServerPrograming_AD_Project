@@ -38,7 +38,7 @@
 프로젝트 폴더로 이동합니다.
 
 ```powershell
-cd "\djangobook-3-12"
+cd "\source_code"
 ```
 
 가상환경을 생성합니다.

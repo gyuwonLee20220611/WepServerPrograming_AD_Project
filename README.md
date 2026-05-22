@@ -38,7 +38,7 @@
 프로젝트 폴더로 이동합니다.
 
 ```powershell
-cd "C:\Users\guwon\OneDrive\바탕 화면\djangobook-3-12"
+cd "\djangobook-3-12"
 ```
 
 가상환경을 생성합니다.

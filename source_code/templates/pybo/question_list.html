@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load pybo_filter %}
+{% block content %}
+<div class="container my-3">
+    <form method="get" action="{% url 'pybo:index' %}" class="mb-3">
+        <div class="form-row align-items-center">
+            <div class="col-md-2 my-1">
+                <select name="category" class="form-control">
+                    <option value="">전체 카테고리</option>
+                    {% for category in category_list %}
+                    <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 my-1">
+                <select name="so" class="form-control">
+                    <option value="all" {% if so == 'all' %}selected{% endif %}>전체 검색</option>
+                    <option value="subject" {% if so == 'subject' %}selected{% endif %}>제목</option>
+                    <option value="content" {% if so == 'content' %}selected{% endif %}>내용</option>
+                    <option value="author" {% if so == 'author' %}selected{% endif %}>작성자</option>
+                </select>
+            </div>
+            <div class="col-md-6 my-1">
+                <input type="text" name="kw" class="form-control" value="{{ kw }}" placeholder="검색어를 입력하세요">
+            </div>
+            <div class="col-md-2 my-1">
+                <button type="submit" class="btn btn-outline-secondary btn-block">검색</button>
+            </div>
+        </div>
+    </form>
+
+    <table class="table">
+        <thead>
+        <tr class="text-center thead-dark">
+            <th>번호</th>
+            <th>카테고리</th>
+            <th>추천</th>
+            <th style="width:45%">제목</th>
+            <th>글쓴이</th>
+            <th>작성일시</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if question_list %}
+        {% for question in question_list %}
+        <tr class="text-center">
+            <td>{{ question_list.paginator.count|sub:question_list.start_index|sub:forloop.counter0|add:1 }}</td>
+            <td>
+                {% if question.category %}
+                <span class="badge badge-info">{{ question.category.name }}</span>
+                {% else %}
+                <span class="text-muted">-</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if question.voter.all.count > 0 %}
+                <span class="badge badge-warning px-2 py-1">{{ question.voter.all.count }}</span>
+                {% endif %}
+            </td>
+            <td class="text-left">
+                <a href="{% url 'pybo:detail' question.id %}">{{ question.subject }}</a>
+                {% if question.answer_set.count > 0 %}
+                <span class="text-danger small ml-2">{{ question.answer_set.count }}</span>
+                {% endif %}
+            </td>
+            <td>{{ question.author.username }}</td>
+            <td>{{ question.create_date }}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="6" class="text-center">질문이 없습니다.</td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+
+    <ul class="pagination justify-content-center">
+        {% if question_list.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ question_list.previous_page_number }}&category={{ selected_category }}&so={{ so }}&kw={{ kw }}">이전</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">이전</a></li>
+        {% endif %}
+
+        {% for page_number in question_list.paginator.page_range %}
+        {% if page_number >= question_list.number|add:-5 and page_number <= question_list.number|add:5 %}
+        <li class="page-item {% if page_number == question_list.number %}active{% endif %}">
+            <a class="page-link" href="?page={{ page_number }}&category={{ selected_category }}&so={{ so }}&kw={{ kw }}">{{ page_number }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        {% if question_list.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ question_list.next_page_number }}&category={{ selected_category }}&so={{ so }}&kw={{ kw }}">다음</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">다음</a></li>
+        {% endif %}
+    </ul>
+
+    <a href="{% url 'pybo:question_create' %}" class="btn btn-primary">질문 등록하기</a>
+</div>
+{% endblock %}
